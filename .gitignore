@@ -168,3 +168,4 @@ $RECYCLE.BIN/
 /Intermediate/
 /Legacy/hosts/xsserverhost/Telemetry
 /Legacy/bldver.h
+/.nuget/NuGet.exe
