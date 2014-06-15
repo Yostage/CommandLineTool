@@ -57,6 +57,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommandLineLibrary\CommandLineTool.csproj">
+      <Project>{501c1a57-c292-4ec3-b8bc-cee2f7ba91e9}</Project>
+      <Name>CommandLineTool</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

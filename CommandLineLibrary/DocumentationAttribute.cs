@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ScidCruncher
+namespace CommandLineTool
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class DocumentationAttribute : System.Attribute

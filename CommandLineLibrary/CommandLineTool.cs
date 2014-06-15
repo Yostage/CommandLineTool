@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScidCruncher
+namespace CommandLineTool
 {
     /// <summary>
     /// Command line tool
@@ -290,6 +290,17 @@ namespace ScidCruncher
             Console.WriteLine("No method {0} found", commandName);
             Usage();
             return false;
+        }
+
+        public bool InvokeCommandLine(string[] args)
+        {
+            // todo: refactor the argument escaping up to here
+            string command = args[0];
+
+            // open Command
+            // reflect its methods
+            // call the methods
+            return InvokeCommand(command, args.Skip(1).ToList());
         }
 
         /// <summary>
