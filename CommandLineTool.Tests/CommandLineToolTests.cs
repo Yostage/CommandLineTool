@@ -8,15 +8,29 @@ namespace CommandLineTool.Tests
     {
         public static class TestCommandsImplementation
         {
-            public static bool CommandWithNoParametersExecuted { get; set; }
+            public static string LastResult { get; set; }
             public static void CommandWithNoParameters()
             {
-                CommandWithNoParametersExecuted = true;
+                LastResult = "CommandWithNoParametersExecuted";
             }
+
+            public static void CommandWithOneArgument(string argument1)
+            {
+                LastResult = String.Format("CommandWithOneArgument argument1={0}", argument1);
+            }
+
+            public static void CommandWithOneOptionalArgument(string argument1 = "defaultValue")
+            {
+                LastResult = String.Format("CommandWithOneOptionalArgument argument1={0}", argument1);
+            }
+
         }
 
         CommandLineTool GetCommandLineTool()
         {
+            // clear our results storage
+            TestCommandsImplementation.LastResult = null;
+            
             var clt = new CommandLineTool();
             clt.CommandClass = typeof(TestCommandsImplementation);
             return clt;
@@ -32,9 +46,45 @@ namespace CommandLineTool.Tests
         {
             var clt = GetCommandLineTool();
 
-            Assert.False(TestCommandsImplementation.CommandWithNoParametersExecuted);
+            Assert.NotEqual<string>("CommandWithNoParametersExecuted", TestCommandsImplementation.LastResult);
             clt.InvokeCommandLine(StringToArgs("CommandWithNoParameters"));
-            Assert.True(TestCommandsImplementation.CommandWithNoParametersExecuted);
+            Assert.Equal<string>("CommandWithNoParametersExecuted", TestCommandsImplementation.LastResult);
+        }
+
+        [Fact]
+        public void CanExecuteCommandsWithOneImplicitArgument()
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument HelloWorld"));
+            Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+        }
+
+        [Fact]
+        public void CanExecuteCommandsWithOneExplicitArgument()
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument -argument1 HelloWorld"));
+            Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+        }
+
+        [Fact]
+        public void CanOverrideOptionalParameters()
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneOptionalArgument ActualValue"));
+            Assert.Equal<string>("CommandWithOneOptionalArgument argument1=ActualValue", TestCommandsImplementation.LastResult);
+        }
+
+        [Fact]
+        public void CanSkipOptionalParameters()
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneOptionalArgument"));
+            Assert.Equal<string>("CommandWithOneOptionalArgument argument1=defaultValue", TestCommandsImplementation.LastResult);
         }
 
         [Fact]
