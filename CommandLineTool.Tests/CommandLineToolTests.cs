@@ -65,8 +65,17 @@ namespace CommandLineTool.Tests
         {
             var clt = GetCommandLineTool();
 
-            clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument -argument1 HelloWorld"));
+            // BUGBUG: we don't let you explicitly specify required arguments
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument -argument1 HelloWorld"));
+                Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+            });
+
+            // but we do let you list them manually
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument HelloWorld"));
             Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+
         }
 
         [Fact]
