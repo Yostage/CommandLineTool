@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using Xunit.Extensions;
 
 
 namespace CommandLineTool.Tests
@@ -22,6 +23,12 @@ namespace CommandLineTool.Tests
             public static void CommandWithOneOptionalArgument(string argument1 = "defaultValue")
             {
                 LastResult = String.Format("CommandWithOneOptionalArgument argument1={0}", argument1);
+            }
+
+            [Abbreviation("cwa")]
+            public static void CommandWithAbbreviation(string argument1 = "defaultValue")
+            {
+                LastResult = String.Format("CommandWithAbbreviation argument1={0}", argument1);
             }
 
         }
@@ -94,6 +101,22 @@ namespace CommandLineTool.Tests
 
             clt.InvokeCommandLine(StringToArgs("CommandWithOneOptionalArgument"));
             Assert.Equal<string>("CommandWithOneOptionalArgument argument1=defaultValue", TestCommandsImplementation.LastResult);
+        }
+
+        [Theory,
+        InlineData("CommandWithAbbreviation", "CommandWithAbbreviation argument1=defaultValue"),
+        // can drop in the abbreviation instead
+        InlineData("cwa", "CommandWithAbbreviation argument1=defaultValue"),
+        // parameters still work
+        InlineData("CommandWithAbbreviation parameter1", "CommandWithAbbreviation argument1=parameter1"),
+        InlineData("cwa parameter1", "CommandWithAbbreviation argument1=parameter1"),
+        ]
+        public void CanAbbreviateParameters(string input, string expectedOutput)
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs(input));
+            Assert.Equal<string>(expectedOutput, TestCommandsImplementation.LastResult);
         }
 
         [Fact]
