@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 using Xunit.Extensions;
 
@@ -7,6 +8,13 @@ namespace CommandLineTool.Tests
 {
     public class CommandLineToolTests
     {
+        public enum TestEnum 
+        {
+            FirstValue,
+            SecondValue,
+            LastValue
+        }
+
         public static class TestCommandsImplementation
         {
             public static string LastResult { get; set; }
@@ -29,6 +37,10 @@ namespace CommandLineTool.Tests
             public static void CommandWithAbbreviation(string argument1 = "defaultValue")
             {
                 LastResult = String.Format("CommandWithAbbreviation argument1={0}", argument1);
+            }
+            public static void CommandWithEnumParameters(TestEnum argument1)
+            {
+                LastResult = String.Format("CommandWithEnumParameters argument1={0}", argument1);
             }
 
         }
@@ -118,6 +130,42 @@ namespace CommandLineTool.Tests
             clt.InvokeCommandLine(StringToArgs(input));
             Assert.Equal<string>(expectedOutput, TestCommandsImplementation.LastResult);
         }
+
+        [Theory,
+            // all possible values work
+        InlineData("CommandWithEnumParameters FirstValue", "CommandWithEnumParameters argument1=FirstValue"),
+            // case insensitive
+        InlineData("CommandWithEnumParameters SECONDVALUE", "CommandWithEnumParameters argument1=SecondValue"),
+        InlineData("CommandWithEnumParameters lastValue", "CommandWithEnumParameters argument1=LastValue"),
+        ]
+        public void CanUseEnums(string input, string expectedOutput)
+        {
+            var clt = GetCommandLineTool();
+
+            clt.InvokeCommandLine(StringToArgs(input));
+            Assert.Equal<string>(expectedOutput, TestCommandsImplementation.LastResult);
+        }
+
+        [Fact]
+        public void EnumsAreParsed()
+        {
+            var clt = GetCommandLineTool();
+
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+            {
+                clt.InvokeCommandLine(StringToArgs("CommandWithEnumParameters BogusValue"));
+            });
+
+            // and we print out all the actual values
+            var values = Enum.GetNames(typeof(TestEnum));
+            
+            foreach (var value in values)
+            {
+                Assert.Contains(value, ex.Message);
+            }
+        }
+
 
         [Fact]
         public void InvokeThrowsWithNoArguments()
