@@ -92,7 +92,7 @@ namespace CommandLineTool.Tests
         {
             var clt = GetCommandLineTool();
 
-            // BUGBUG: we don't let you explicitly specify required arguments
+            // TODO BUGBUG: we don't let you explicitly specify required arguments
             Assert.Throws<InvalidOperationException>(() =>
             {
                 clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument -argument1 HelloWorld"));
@@ -102,6 +102,15 @@ namespace CommandLineTool.Tests
             // but we do let you list them manually
             clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument HelloWorld"));
             Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+
+            // TODO: extra parameters should throw
+            clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument HelloWorld -extraParams"));
+            Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+
+            // todo: better error handling when we can't match a switch
+            //clt.InvokeCommandLine(StringToArgs("CommandWithOneArgument HelloWorld extraParams"));
+            //Assert.Equal<string>("CommandWithOneArgument argument1=HelloWorld", TestCommandsImplementation.LastResult);
+
 
         }
 
