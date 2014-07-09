@@ -43,6 +43,14 @@ namespace CommandLineTool.Tests
                 LastResult = String.Format("CommandWithEnumParameters argument1={0}", argument1);
             }
 
+            public static void CommandWithOtherDataTypes(bool boolParam = false, bool? nullableBoolParam=null, int intParam=0)
+            {
+                LastResult = String.Format("CommandWithOtherDataTypes boolParam={0} nullableBoolParam={1} intParam={2}",
+                    boolParam,
+                    nullableBoolParam, 
+                    intParam);
+            }
+
         }
 
         CommandLineTool GetCommandLineTool()
@@ -164,6 +172,26 @@ namespace CommandLineTool.Tests
             {
                 Assert.Contains(value, ex.Message);
             }
+        }
+
+        [Theory,
+        // each one can handle default values
+        InlineData("CommandWithOtherDataTypes", "CommandWithOtherDataTypes boolParam=False nullableBoolParam= intParam=0"),
+        // each type by itself
+        InlineData("CommandWithOtherDataTypes -nullableBoolParam true", "CommandWithOtherDataTypes boolParam=False nullableBoolParam=True intParam=0"),
+        InlineData("CommandWithOtherDataTypes -boolParam true", "CommandWithOtherDataTypes boolParam=True nullableBoolParam= intParam=0"),
+        InlineData("CommandWithOtherDataTypes -intParam 999999", "CommandWithOtherDataTypes boolParam=False nullableBoolParam= intParam=999999"),
+        // TODO: support hex
+        //InlineData("CommandWithOtherDataTypes -intParam 0xFF", "CommandWithOtherDataTypes boolParam=False nullableBoolParam= intParam=255"),
+        // Negative numbers
+        InlineData("CommandWithOtherDataTypes -intParam -3", "CommandWithOtherDataTypes boolParam=False nullableBoolParam= intParam=-3"),
+        ]
+        public void CanUsePrimitiveTypes(string input, string expectedOutput)
+        {
+            var clt = GetCommandLineTool();
+            clt.InvokeCommandLine(StringToArgs(input));
+            Assert.Equal<string>(expectedOutput, TestCommandsImplementation.LastResult);
+            // todo: error on bogus switch
         }
 
 
